@@ -1,0 +1,10 @@
+mode: dev # switch from dev to prod
+map:
+  dev:
+    url: <your-dev-url>
+    headers:
+      cookie: <your-dev-cookie>
+  prod:
+    url: <your-prod-url>
+    headers:
+      cookie: <your-prod-cookie>

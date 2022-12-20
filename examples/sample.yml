@@ -1,0 +1,18 @@
+---
+global:
+  hello: world
+  accountId: acc-xxxx
+  projectId: "proj-xxxx"
+  projectName: "sample"
+---
+
+label: List Projects
+query: |
+  query Core_projects($accountId: ID) {
+    core_projects(accountId: $accountId) {
+      id
+      name
+    }
+  }
+variables:
+  accountId: "{{accountId}}"
