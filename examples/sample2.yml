@@ -1,0 +1,16 @@
+---
+global:
+  hello: world
+  accountId: acc-xxxx
+  projectId: "proj-xxxx"
+  projectName: "sample"
+---
+label: Hello
+method: GET
+url: https://localhost:2478/asfdjkl
+headers:
+  content-type: application/json
+body:
+  hello: hi
+params:
+  sample: world

@@ -5,7 +5,6 @@ global:
   projectId: "proj-xxxx"
   projectName: "sample"
 ---
-
 label: List Projects
 query: |
   query Core_projects($accountId: ID) {
