@@ -3,9 +3,11 @@ package parser
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/nxtcoder17/http-cli/pkg/template"
 	"io"
 	"net/http"
+
+	"github.com/nxtcoder17/http-cli/pkg/template"
+	"sigs.k8s.io/yaml"
 )
 
 type RestBlock struct {
@@ -33,12 +35,7 @@ func parseBody(body map[string]any, gbl GlobalVars) (io.Reader, error) {
 }
 
 func parseUrl(url string, gbl GlobalVars) (string, error) {
-	b, err := json.Marshal(url)
-	if err != nil {
-		return "", err
-	}
-
-	pb, err := template.ParseBytes(b, gbl)
+	pb, err := template.ParseBytes([]byte(url), gbl)
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +45,7 @@ func parseUrl(url string, gbl GlobalVars) (string, error) {
 
 func ParseRestQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 	var restBlock RestBlock
-	if err := json.Unmarshal(yql.YAMLQuery, &restBlock); err != nil {
+	if err := yaml.Unmarshal(yql.YAMLQuery, &restBlock); err != nil {
 		return nil, err
 	}
 
@@ -57,10 +54,20 @@ func ParseRestQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 		return nil, err
 	}
 	body, err := parseBody(restBlock.Body, yql.Global)
+	if err != nil {
+		return nil, err
+	}
 	req, err := http.NewRequest(restBlock.Query.Method, url, body)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Content-Type", "application/json")
+
+	for k, v := range env.Map[env.Mode].Headers {
+		req.Header.Set(k, v)
+	}
+	for k, v := range restBlock.Query.Headers {
+		req.Header.Set(k, v)
+	}
+
 	return req, nil
 }

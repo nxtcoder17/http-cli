@@ -16,8 +16,8 @@ M.setup = function(cfg)
 
   local vimBufOptions = "vne | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal noswapfile | set ft=json "
 
-  --local cliExec = string.format("cd %s && go run ./main.go ", pRootDir)
-  local cliExec = string.format("%s/bin/http", pRootDir)
+  local cliExec = string.format("cd %s && go run ./main.go ", pRootDir)
+  -- local cliExec = string.format("%s/bin/http", pRootDir)
 
   local gqlCmd = string.format(
     "command! -nargs=0 %s execute '%s | r! %s graphql --file ' . expand('%%:p') . ' -envFile %s --lineNo ' . line('.')",

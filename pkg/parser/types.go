@@ -43,6 +43,7 @@ func ReadQueryFile(file string, lineNo uint) (*YamlQueryBlock, error) {
 		readString, err := reader.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
+			  readString = "---"
 				break
 			}
 		}
@@ -75,6 +76,8 @@ func ReadQueryFile(file string, lineNo uint) (*YamlQueryBlock, error) {
 				yQuery.YAMLQuery = []byte(strings.Join(lines[blockStart:currLine], ""))
 				break
 			}
+
+      blockStart = currLine
 		}
 	}
 
