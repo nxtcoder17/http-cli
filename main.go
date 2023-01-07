@@ -31,44 +31,44 @@ func showOutput(msg any) {
 		}
 
 		if debug {
-      fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
+			fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
 		}
 
 		nb := new(bytes.Buffer)
 		if err := json.Indent(nb, b, "", "  "); err != nil {
-		  fmt.Println(err)
-		  return
+			fmt.Println(err)
+			return
 		}
-    fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
+		fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
 	default:
 		if debug {
-      fmt.Printf("[RAW RESPONSE]\n%v\n", msg)
+			fmt.Printf("[RAW RESPONSE]\n%v\n", msg)
 		}
 		b, err := json.MarshalIndent(msg, "", "  ")
 		if err != nil {
-		  fmt.Println(err)
-		  return
+			fmt.Println(err)
+			return
 		}
 		fmt.Printf("%s\n", b)
 	}
 }
 
 func printHttpResponse(resp io.ReadCloser) {
-		b, err := io.ReadAll(resp)
-		if err != nil {
-			panic(err)
-		}
+	b, err := io.ReadAll(resp)
+	if err != nil {
+		panic(err)
+	}
 
-		if debug {
-      fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
-		}
+	if debug {
+		fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
+	}
 
-		nb := new(bytes.Buffer)
-		if err := json.Indent(nb, b, "", "  "); err != nil {
-		  fmt.Println(err)
-		  return
-		}
-    fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
+	nb := new(bytes.Buffer)
+	if err := json.Indent(nb, b, "", "  "); err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
 }
 
 var flags = []cli.Flag{
@@ -151,8 +151,6 @@ func main() {
 					return err
 				}
 
-				debug := true
-
 				if debug {
 					fmt.Println("global")
 					showOutput(queryBlock.Global)
@@ -187,7 +185,7 @@ func main() {
 				fmt.Println("\n### Response Headers")
 				printHeaders(resp.Header)
 
-        printHttpResponse(resp.Body)
+				printHttpResponse(resp.Body)
 				return nil
 			},
 		},
