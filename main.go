@@ -14,15 +14,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func printHeaders(headers http.Header) {
-	for k, v := range headers {
-		fmt.Printf("%-20s: %-30s\n", k, strings.Join(v, ","))
-	}
-}
+var debug = false
 
-var debug = true
-
-func showOutput(msg any) {
+func showOutput(label string, msg any) {
+	fmt.Printf("\n# %s\n", label)
 	switch t := msg.(type) {
 	case io.ReadCloser:
 		b, err := io.ReadAll(t)
@@ -30,20 +25,21 @@ func showOutput(msg any) {
 			panic(err)
 		}
 
-		if debug {
-			fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
-		}
-
 		nb := new(bytes.Buffer)
 		if err := json.Indent(nb, b, "", "  "); err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
-	default:
-		if debug {
-			fmt.Printf("[RAW RESPONSE]\n%v\n", msg)
+		fmt.Printf("%s\n", nb.String())
+	case []byte:
+		fmt.Printf("%s\n", t)
+	case string:
+		fmt.Printf("%s\n", t)
+	case http.Header:
+		for k, v := range t {
+			fmt.Printf("%-20s: %-30s\n", k, strings.Join(v, ","))
 		}
+	default:
 		b, err := json.MarshalIndent(msg, "", "  ")
 		if err != nil {
 			fmt.Println(err)
@@ -51,24 +47,6 @@ func showOutput(msg any) {
 		}
 		fmt.Printf("%s\n", b)
 	}
-}
-
-func printHttpResponse(resp io.ReadCloser) {
-	b, err := io.ReadAll(resp)
-	if err != nil {
-		panic(err)
-	}
-
-	if debug {
-		fmt.Printf("[RAW RESPONSE]\n%s\n", string(b))
-	}
-
-	nb := new(bytes.Buffer)
-	if err := json.Indent(nb, b, "", "  "); err != nil {
-		fmt.Println(err)
-		return
-	}
-	fmt.Printf("\n[JSON RESPONSE]\n%s\n", nb.String())
 }
 
 var flags = []cli.Flag{
@@ -108,9 +86,16 @@ func main() {
 					return err
 				}
 
+				if debug {
+					showOutput("raw query", string(queryBlock.YAMLQuery))
+				}
+
 				ef, err := parser.ParseEnvFile(envFile)
 				if err != nil {
 					return err
+				}
+				if debug {
+					showOutput("Parsed Env", *ef)
 				}
 
 				req, err := parser.ParseGqlQuery(queryBlock, ef)
@@ -118,19 +103,15 @@ func main() {
 					return err
 				}
 
-				fmt.Println("### Request Headers")
-				showOutput(req.Header)
+				showOutput("request headers", req.Header)
 
 				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					return err
 				}
 
-				fmt.Println("### Response Headers")
-				showOutput(resp.Header)
-
-				fmt.Println("### Response Body")
-				showOutput(resp.Body)
+				showOutput("response headers", resp.Header)
+				showOutput("response body", resp.Body)
 
 				return nil
 			},
@@ -152,11 +133,8 @@ func main() {
 				}
 
 				if debug {
-					fmt.Println("global")
-					showOutput(queryBlock.Global)
-
-					fmt.Println("query")
-					showOutput(string(queryBlock.YAMLQuery))
+					showOutput("global block", queryBlock.Global)
+					showOutput("query", string(queryBlock.YAMLQuery))
 				}
 
 				ef, err := parser.ParseEnvFile(envFile)
@@ -166,7 +144,7 @@ func main() {
 
 				if debug {
 					fmt.Println("env file")
-					showOutput(ef)
+					showOutput("env file", ef)
 				}
 
 				req, err := parser.ParseRestQuery(queryBlock, ef)
@@ -175,17 +153,16 @@ func main() {
 				}
 
 				fmt.Println("### Request Headers")
-				printHeaders(req.Header)
+				showOutput("request headers", req.Header)
 
 				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					return err
 				}
 
-				fmt.Println("\n### Response Headers")
-				printHeaders(resp.Header)
+				showOutput("response headers", resp.Header)
 
-				printHttpResponse(resp.Body)
+				showOutput("response body", resp.Body)
 				return nil
 			},
 		},

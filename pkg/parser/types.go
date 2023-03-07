@@ -6,8 +6,8 @@ import (
 	"io"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"os"
-	"strings"
 	"sigs.k8s.io/yaml"
+	"strings"
 )
 
 type GlobalVars map[string]any
@@ -43,7 +43,7 @@ func ReadQueryFile(file string, lineNo uint) (*YamlQueryBlock, error) {
 		readString, err := reader.ReadString('\n')
 		if err != nil {
 			if errors.Is(err, io.EOF) {
-			  readString = "---"
+				readString = "---"
 				break
 			}
 		}
@@ -68,16 +68,15 @@ func ReadQueryFile(file string, lineNo uint) (*YamlQueryBlock, error) {
 				}
 				blockStart = currLine
 				yQuery.Global = m.Global
-				// fmt.Printf("%+v\n", gqlQuery.Global)
 				continue
 			}
 
 			if currLine > lineNo {
-				yQuery.YAMLQuery = []byte(strings.Join(lines[blockStart:currLine], ""))
+				yQuery.YAMLQuery = []byte(strings.Join(lines[blockStart:currLine-1], ""))
 				break
 			}
 
-      blockStart = currLine
+			blockStart = currLine
 		}
 	}
 

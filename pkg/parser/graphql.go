@@ -3,8 +3,10 @@ package parser
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/nxtcoder17/http-cli/pkg/template"
 	"net/http"
+
+	"github.com/nxtcoder17/http-cli/pkg/template"
+	"sigs.k8s.io/yaml"
 )
 
 type GqlBlock struct {
@@ -15,7 +17,7 @@ type GqlBlock struct {
 
 func ParseGqlQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 	var gqlBlock GqlBlock
-	if err := json.Unmarshal(yql.YAMLQuery, &gqlBlock); err != nil {
+	if err := yaml.Unmarshal(yql.YAMLQuery, &gqlBlock); err != nil {
 		return nil, err
 	}
 
