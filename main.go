@@ -28,6 +28,8 @@ func showOutput(label string, msg any) {
 		nb := new(bytes.Buffer)
 		if err := json.Indent(nb, b, "", "  "); err != nil {
 			fmt.Println(err)
+			fmt.Print("[RAW RESPONSE]:\n")
+			fmt.Println(string(b))
 			return
 		}
 		fmt.Printf("%s\n", nb.String())
