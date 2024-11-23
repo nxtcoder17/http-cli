@@ -26,7 +26,15 @@ func ParseGqlQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 		return nil, err
 	}
 
-	pvBytes, err := template.ParseBytes(vBytes, yql.Global)
+	vars := make(map[string]any, len(env.Map[env.Mode].Vars)+len(gqlBlock.Variables))
+	for k, v := range env.Map[env.Mode].Vars {
+		vars[k] = v
+	}
+	for k, v := range yql.Global {
+		vars[k] = v
+	}
+
+	pvBytes, err := template.ParseBytes(vBytes, vars)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +58,12 @@ func ParseGqlQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Set("Content-Type", "application/json")
 	for k, v := range env.Map[env.Mode].Headers {
 		req.Header.Set(k, v)
 	}
+	req.Header.Add("Accept-Charset", "utf-8")
 
 	return req, nil
 }

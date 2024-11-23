@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/nxtcoder17/http-cli/pkg/parser"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
 
@@ -27,9 +29,9 @@ func showOutput(label string, msg any) {
 
 		nb := new(bytes.Buffer)
 		if err := json.Indent(nb, b, "", "  "); err != nil {
-			fmt.Println(err)
-			fmt.Print("[RAW RESPONSE]:\n")
-			fmt.Println(string(b))
+			fmt.Println(errors.Wrapf(err, "[ERROR]: failed to decode response body into json format"))
+			fmt.Print("\n### RAW body:\n")
+			fmt.Printf("```\n%s\n```\n", b)
 			return
 		}
 		fmt.Printf("%s\n", nb.String())
@@ -105,16 +107,24 @@ func main() {
 					return err
 				}
 
-				showOutput("request headers", req.Header)
+				showOutput("request", map[string]any{
+					"url":     req.URL.String(),
+					"headers": req.Header,
+				})
+
+				start := time.Now()
 
 				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					return err
 				}
 
-				showOutput("response headers", resp.Header)
-				showOutput("response body", resp.Body)
+				d := time.Since(start)
 
+				showOutput("time taken", fmt.Sprintf("%.2fs", d.Seconds()))
+				showOutput("response headers", resp.Header)
+				showOutput("response body\n```json", resp.Body)
+				fmt.Println("```")
 				return nil
 			},
 		},
@@ -145,7 +155,6 @@ func main() {
 				}
 
 				if debug {
-					fmt.Println("env file")
 					showOutput("env file", ef)
 				}
 
@@ -154,15 +163,24 @@ func main() {
 					return err
 				}
 
-				fmt.Println("### Request Headers")
-				showOutput("request headers", req.Header)
+				showOutput("request", map[string]any{
+					"url":     req.URL.String(),
+					"headers": req.Header,
+				})
+
+				start := time.Now()
 
 				resp, err := http.DefaultClient.Do(req)
 				if err != nil {
 					return err
 				}
 
+				d := time.Since(start)
+
+				showOutput("time taken", fmt.Sprintf("%.2fs", d.Seconds()))
 				showOutput("response headers", resp.Header)
+
+				showOutput("response status", resp.Status)
 
 				showOutput("response body", resp.Body)
 				return nil

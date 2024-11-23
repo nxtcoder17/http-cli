@@ -22,6 +22,7 @@ type EnvFile struct {
 	Map  map[string]struct {
 		Url     string            `json:"url"`
 		Headers map[string]string `json:"headers"`
+		Vars    GlobalVars        `json:"vars"`
 	} `json:"map"`
 }
 

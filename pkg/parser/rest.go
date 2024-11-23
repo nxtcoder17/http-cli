@@ -49,14 +49,24 @@ func ParseRestQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 		return nil, err
 	}
 
-	url, err := parseUrl(restBlock.Query.Url, yql.Global)
+	vars := make(map[string]any, len(env.Map[env.Mode].Vars)+len(yql.Global))
+	for k, v := range env.Map[env.Mode].Vars {
+		vars[k] = v
+	}
+	for k, v := range yql.Global {
+		vars[k] = v
+	}
+
+	url, err := parseUrl(restBlock.Query.Url, vars)
 	if err != nil {
 		return nil, err
 	}
-	body, err := parseBody(restBlock.Body, yql.Global)
+
+	body, err := parseBody(restBlock.Body, vars)
 	if err != nil {
 		return nil, err
 	}
+
 	req, err := http.NewRequest(restBlock.Query.Method, url, body)
 	if err != nil {
 		return nil, err

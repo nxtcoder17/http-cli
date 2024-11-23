@@ -2,5 +2,7 @@ version: 3
 
 tasks:
   build:
+    env:
+      CGO_ENABLED: 0
     cmds:
-      - go build -o ./bin/http ./main.go
+      - go build -ldflags='-s -w' -o ./bin/http ./main.go

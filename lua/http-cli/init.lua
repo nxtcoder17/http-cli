@@ -56,7 +56,7 @@ M.setup = function(cfg)
         vim.api.nvim_set_current_win(win)
         vim.cmd("80vne | setlocal buftype=nofile | setlocal bufhidden=hide | setlocal noswapfile")
         vim.cmd("buffer " .. buf)
-        vim.cmd("set ft=yaml")
+        vim.cmd("set ft=markdown")
         vim.cmd("norm! G")
       end,
     })
