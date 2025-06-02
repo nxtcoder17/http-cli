@@ -50,9 +50,11 @@ func ParseRestQuery(yql *YamlQueryBlock, env *EnvFile) (*http.Request, error) {
 	}
 
 	vars := make(map[string]any, len(env.Map[env.Mode].Vars)+len(yql.Global))
+
 	for k, v := range env.Map[env.Mode].Vars {
 		vars[k] = v
 	}
+
 	for k, v := range yql.Global {
 		vars[k] = v
 	}

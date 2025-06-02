@@ -40,16 +40,26 @@ func showOutput(label string, msg any) {
 	case string:
 		fmt.Printf("%s\n", t)
 	case http.Header:
+		m := make(map[string]any, len(t))
 		for k, v := range t {
-			fmt.Printf("%-20s: %-30s\n", k, strings.Join(v, ","))
+			m[k] = strings.Join(v, ", ")
 		}
+
+		b, err := json.MarshalIndent(m, "", "  ")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		fmt.Printf("```json\n%s\n```\n", b)
 	default:
 		b, err := json.MarshalIndent(msg, "", "  ")
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("%s\n", b)
+
+		fmt.Printf("```json\n%s\n```\n", b)
 	}
 }
 
@@ -155,7 +165,7 @@ func main() {
 				}
 
 				if debug {
-					showOutput("env file", ef)
+					showOutput("env file", *ef)
 				}
 
 				req, err := parser.ParseRestQuery(queryBlock, ef)
@@ -182,7 +192,8 @@ func main() {
 
 				showOutput("response status", resp.Status)
 
-				showOutput("response body", resp.Body)
+				showOutput("response body\n```json", resp.Body)
+				fmt.Println("```")
 				return nil
 			},
 		},

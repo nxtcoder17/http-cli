@@ -4,10 +4,11 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 	"os"
-	"sigs.k8s.io/yaml"
 	"strings"
+
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
+	"sigs.k8s.io/yaml"
 )
 
 type GlobalVars map[string]any
@@ -43,10 +44,10 @@ func ReadQueryFile(file string, lineNo uint) (*YamlQueryBlock, error) {
 	for {
 		readString, err := reader.ReadString('\n')
 		if err != nil {
-			if errors.Is(err, io.EOF) {
-				readString = "---"
-				break
+			if !errors.Is(err, io.EOF) {
+				return nil, err
 			}
+			readString = "---"
 		}
 
 		currLine += 1
@@ -89,6 +90,7 @@ func ParseEnvFile(f string) (*EnvFile, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	var ev EnvFile
 	if err := yaml.Unmarshal(b, &ev); err != nil {
 		return nil, err
